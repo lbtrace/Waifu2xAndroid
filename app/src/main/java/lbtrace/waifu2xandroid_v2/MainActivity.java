@@ -5,9 +5,11 @@ import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import java.io.IOException;
 
@@ -18,6 +20,9 @@ public class MainActivity extends AppCompatActivity {
     private Button mPickBtn;
     private Button mProcessBtn;
     private Bitmap oriBitmap;
+    private ProgressBar mScaleProgressBar;
+
+    private boolean mIsScale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
         mImageView = (ImageView) findViewById(R.id.scale_image);
         mPickBtn = (Button) findViewById(R.id.pick_btn);
         mProcessBtn = (Button) findViewById(R.id.process_btn);
+        mScaleProgressBar = (ProgressBar) findViewById(R.id.scale_process_pb);
+        mScaleProgressBar.setVisibility(View.GONE);
 
         mPickBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -41,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
         mProcessBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                oriBitmap = new Waifu2xScale(getAssets()).scale(oriBitmap);
-                mImageView.setImageBitmap(oriBitmap);
+                Log.i(LOG_TAG, "ori Bitmap size: (" + oriBitmap.getHeight() + "," + oriBitmap.getWidth() + ")");
+                new ImageScaleTask(getAssets(), new ViewExecuteCallback()).execute(oriBitmap);
             }
         });
     }
@@ -64,6 +71,24 @@ public class MainActivity extends AppCompatActivity {
                 break;
             default:
                 throw new UnsupportedOperationException();
+        }
+    }
+
+    class ViewExecuteCallback implements ImageScaleTask.ExecuteCallback {
+        @Override
+        public void onPreExecute() {
+            mPickBtn.setClickable(false);
+            mImageView.setVisibility(View.GONE);
+            mScaleProgressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        public void onPostExecute(Bitmap bitmap) {
+            mImageView.setImageBitmap(bitmap);
+            mImageView.setVisibility(View.VISIBLE);
+            oriBitmap = bitmap;
+            mPickBtn.setClickable(true);
+            mScaleProgressBar.setVisibility(View.GONE);
         }
     }
 }
