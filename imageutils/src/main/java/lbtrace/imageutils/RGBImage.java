@@ -44,6 +44,11 @@ public class RGBImage extends Image {
         }
     }
 
+    /**
+     * Create a ARGB_8888 format Bitmap
+     *
+     * @return Bitmap
+     */
     public Bitmap generateBitmap() {
         int[] pixels = new int[width * height];
 

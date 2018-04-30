@@ -45,6 +45,9 @@ public class YUVImage extends Image {
      * @return padded Y channel data
      */
     public short[][] padYChannel(int pad) {
+        if (pad < 0)
+            throw new IllegalArgumentException();
+
         int newWidth = width + 2 * pad;
         int newHeight = height + 2 * pad;
         short[][] dst = new short[newWidth][newHeight];
@@ -76,8 +79,9 @@ public class YUVImage extends Image {
     }
 
     /**
+     * Update Y channel value of YUVImage
      *
-     * @param newYImage
+     * @param newYImage new Y channel value array
      */
     public void updateYChannel(float[] newYImage) {
         for (int j = 0; j < height; j++) {
